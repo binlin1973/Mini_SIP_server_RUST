@@ -8,7 +8,7 @@ pub const SIP_SERVER_IP_ADDRESS: &str = "192.168.184.128"; // Example—change a
 
 
 ### NOTE 2: SIP Numbers Available for Registration
-The array below lists the only SIP phone numbers that can register. To add or change users, simply edit the username entries (e.g., “1001”–“1006”). Do not touch the default ip_str and port values — these will be automatically overwritten with each phone’s actual IP and port upon REGISTER.
+The array below lists the only SIP phone numbers that can register. To add or change users, open `sip_server.c` and simply edit the username entries (e.g., “1001”–“1006”). Do not touch the default ip_str and port values — these will be automatically overwritten with each phone’s actual IP and port upon REGISTER.
 
 lazy_static! {
 
@@ -34,4 +34,4 @@ lazy_static! {
 
 For a deeper dive into the state machine, see:
 
-State Machine Design.pdf
+`State Machine Design.pdf`
