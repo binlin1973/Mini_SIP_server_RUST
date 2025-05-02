@@ -1,0 +1,9 @@
+[package]
+name = "sip_server_rust"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rand = "0.8"
+lazy_static = "1.4" # For the static location_entries
+nix = "0.27" # For more detailed socket errors if needed (like EWOULDBLOCK) - optional
