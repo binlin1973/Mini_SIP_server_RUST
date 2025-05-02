@@ -34,4 +34,4 @@ lazy_static! {
 
 For a deeper dive into the state machine, see:
 
-`State Machine Design.pdf`
+`State_Machine_Design.pdf`
