@@ -2,12 +2,14 @@
 writen by RUST, the SIP server to handle standard SIP call flows, focusing on managing call setup and teardown; states from the initial INVITE to the final 200 OK response to the BYE request, including interim states.
 
 NOTE: Before building, open sip_defs.rs and set SIP_SERVER_IP_ADDRESS to the actual IP address your server will use at runtime:
+
 pub const SIP_SERVER_IP_ADDRESS: &str = "192.168.184.128"; // Example—change as needed
 
 
 NOTE: The following entries define the actual SIP phone numbers that can register.
 
 You only need to set or add SIP phone numbers (e.g., “1001”–“1006”). 
+
 Do NOT modify the `ip_str` and `port` fields—those defaults will be automatically replaced with each phone’s actual IP and port upon REGISTER.
 
 lazy_static! {
