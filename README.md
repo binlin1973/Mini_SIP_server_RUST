@@ -1,16 +1,15 @@
-# Mini_SIP_server_RUST
-writen by RUST, the SIP server to handle standard SIP call flows, focusing on managing call setup and teardown; states from the initial INVITE to the final 200 OK response to the BYE request, including interim states.
+# Mini_SIP_server (RUST)
+A lightweight SIP server written in RUST, implementing the full SIP call flow—from the initial `INVITE` through interim states to the final `200 OK` response for `BYE`. Focuses solely on call setup and teardown.
 
-NOTE: Before building, open sip_defs.rs and set SIP_SERVER_IP_ADDRESS to the actual IP address your server will use at runtime:
+NOTE 1: 
+### NOTE 1: Server IP
+Before building, open `sip_defs.rs` and set `SIP_SERVER_IP_ADDRESS` to your server’s actual runtime IP:
 
 pub const SIP_SERVER_IP_ADDRESS: &str = "192.168.184.128"; // Example—change as needed
 
 
-NOTE: The following entries define the actual SIP phone numbers that can register.
-
-You only need to set or add SIP phone numbers (e.g., “1001”–“1006”). 
-
-Do NOT modify the `ip_str` and `port` fields—those defaults will be automatically replaced with each phone’s actual IP and port upon REGISTER.
+### NOTE 2: 
+The array below lists the only SIP phone numbers that can register. To add or change users, simply edit the username entries (e.g., “1001”–“1006”). Do not touch the default ip_str and port values — these will be automatically overwritten with each phone’s actual IP and port upon REGISTER.
 
 lazy_static! {
 
@@ -33,3 +32,7 @@ lazy_static! {
     ]);
     
 }
+
+For a deeper dive into the state machine and full usage instructions, see:
+
+State Machine Design.pdf
