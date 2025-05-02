@@ -33,6 +33,6 @@ lazy_static! {
     
 }
 
-For a deeper dive into the state machine and full usage instructions, see:
+For a deeper dive into the state machine, see:
 
 State Machine Design.pdf
