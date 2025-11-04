@@ -1,6 +1,5 @@
 use std::net::SocketAddr;
 use std::sync::Mutex; // Keep Mutex for CallMap and LOCATION_ENTRIES
-use std::thread::JoinHandle;
 
 // --- Constants ---
 pub const BUFFER_SIZE: usize = 1400;
@@ -8,17 +7,14 @@ pub const MAX_THREADS: usize = 5;
 pub const QUEUE_CAPACITY: usize = 10;
 pub const SIP_PORT: u16 = 5060;
 pub const MAX_CALLS: usize = 32;
-pub const HEADER_SIZE: usize = 256;
-// pub const AUTH_HEADER_SIZE: usize = 512; // Not used in provided C parsing logic
 pub const MAX_UUID_LENGTH: usize = 128;
 pub const MAX_USERNAME_LENGTH: usize = 16;
-pub const MAX_PASSWORD_LENGTH: usize = 16;
-pub const MAX_REALM_LENGTH: usize = 16;
-pub const MAX_NONCE_LENGTH: usize = 64;
-pub const MAX_RESPONSE_LENGTH: usize = 64;
+pub const DEFAULT_MAX_FORWARDS: u32 = 70;
+pub const REGISTER_CONTACT_EXPIRES: u32 = 7200;
+pub const RPORT_FLAG_VALUE: u16 = 0;
 
 // NOTE: Set this to your server's actual IP address!
-pub const SIP_SERVER_IP_ADDRESS: &str = "192.168.184.128"; // Example, change as needed
+pub const SIP_SERVER_IP_ADDRESS: &str = "192.168.32.131"; // Example, change as needed
 
 // Define a-leg and b-leg constants
 pub const A_LEG: i32 = 1;
@@ -37,20 +33,12 @@ pub struct SipMessage {
     pub client_addr: SocketAddr,
 }
 
-// Worker thread structure (simplified, queue handled by channels)
-pub struct WorkerThread {
-   pub handle: JoinHandle<()>,
-   // The sender part of the channel is kept in main to distribute messages
-}
-
 // User location information
 #[derive(Debug, Clone)]
 pub struct LocationEntry {
     pub username: String,
-    pub password: String,
     pub ip_str: String, // Keep as String for consistency with C
     pub port: u16,
-    pub realm: String,
     pub registered: bool,
     // Runtime address (updated on REGISTER)
     pub current_addr: Option<SocketAddr>,
@@ -64,18 +52,15 @@ pub struct MediaState {
 }
 
 // Call states enum
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum CallState {
+    #[default]
     Idle,
     Routing,
     Ringing,
     Answered,
     Connected,
     Disconnecting,
-}
-
-impl Default for CallState {
-    fn default() -> Self { CallState::Idle }
 }
 
 // Key SIP headers for a leg
@@ -98,11 +83,10 @@ pub struct Call {
     pub b_leg_media: MediaState,
     pub a_leg_addr: Option<SocketAddr>, // Store Option<SocketAddr> directly
     pub b_leg_addr: Option<SocketAddr>, // Store Option<SocketAddr> directly
-    pub index: usize, // Index within the CallMap's Vec
+    pub index: usize,                   // Index within the CallMap's Vec
     pub a_leg_header: SipHeaderInfo,
     pub b_leg_header: SipHeaderInfo,
-    pub caller: String, // Max 32 in C
-    pub callee: String, // Max 32 in C
+    pub callee: String,        // Max 32 in C
     pub a_leg_contact: String, // Store full contact header or parsed URI
     pub b_leg_contact: String, // Store full contact header or parsed URI
     pub is_active: bool,
@@ -112,11 +96,10 @@ pub struct Call {
 // Manages all active calls
 #[derive(Debug)]
 pub struct CallMap {
-   pub calls: Vec<Call>, // Use a Vec, manage is_active flag
-   pub size: usize, // Number of active calls
-   // Mutex moved here, wraps the entire CallMap
+    pub calls: Vec<Call>, // Use a Vec, manage is_active flag
+    pub size: usize,      // Number of active calls
+                          // Mutex moved here, wraps the entire CallMap
 }
-
 
 // --- Static Data ---
 use lazy_static::lazy_static;
@@ -125,12 +108,12 @@ use lazy_static::lazy_static;
 // IPs/Ports in the static definition are defaults; `current_addr` is updated by REGISTER.
 lazy_static! {
     pub static ref LOCATION_ENTRIES: Mutex<Vec<LocationEntry>> = Mutex::new(vec![
-        LocationEntry { username: "1001".to_string(), password: "defaultpassword".to_string(), ip_str: "192.168.192.1".to_string(), port: 5060, realm: SIP_SERVER_IP_ADDRESS.to_string(), registered: false, current_addr: None },
-        LocationEntry { username: "1002".to_string(), password: "defaultpassword".to_string(), ip_str: "192.168.192.1".to_string(), port: 5070, realm: SIP_SERVER_IP_ADDRESS.to_string(), registered: false, current_addr: None },
-        LocationEntry { username: "1003".to_string(), password: "defaultpassword".to_string(), ip_str: "192.168.1.103".to_string(), port: 5060, realm: SIP_SERVER_IP_ADDRESS.to_string(), registered: false, current_addr: None },
-        LocationEntry { username: "1004".to_string(), password: "defaultpassword".to_string(), ip_str: "192.168.1.104".to_string(), port: 5060, realm: SIP_SERVER_IP_ADDRESS.to_string(), registered: false, current_addr: None },
-        LocationEntry { username: "1005".to_string(), password: "defaultpassword".to_string(), ip_str: "192.168.184.1".to_string(), port: 5060, realm: SIP_SERVER_IP_ADDRESS.to_string(), registered: false, current_addr: None },
-        LocationEntry { username: "1006".to_string(), password: "defaultpassword".to_string(), ip_str: "192.168.184.1".to_string(), port: 5070, realm: SIP_SERVER_IP_ADDRESS.to_string(), registered: false, current_addr: None },
+        LocationEntry { username: "1001".to_string(), ip_str: "192.168.32.1".to_string(), port: 5060, registered: false, current_addr: None },
+        LocationEntry { username: "1002".to_string(), ip_str: "192.168.32.1".to_string(), port: 5070, registered: false, current_addr: None },
+        LocationEntry { username: "1003".to_string(), ip_str: "192.168.1.103".to_string(), port: 5060, registered: false, current_addr: None },
+        LocationEntry { username: "1004".to_string(), ip_str: "192.168.1.104".to_string(), port: 5060, registered: false, current_addr: None },
+        LocationEntry { username: "1005".to_string(), ip_str: "192.168.184.1".to_string(), port: 5060, registered: false, current_addr: None },
+        LocationEntry { username: "1006".to_string(), ip_str: "192.168.184.1".to_string(), port: 5070, registered: false, current_addr: None },
         // Add more users as needed
     ]);
 }
@@ -145,17 +128,18 @@ pub fn next_cseq() -> usize {
     CSEQ_NUMBER.fetch_add(1, Ordering::SeqCst)
 }
 
-// Helper function to find location entry
-// Note: Takes a lock on the static LOCATION_ENTRIES Mutex
-pub fn find_location_entry_by_userid(username: &str) -> Option<LocationEntry> {
-    let entries = LOCATION_ENTRIES.lock().expect("Failed to lock location entries");
-    entries.iter().find(|entry| entry.username == username).cloned()
-}
-
 // Helper function to update location entry's address and registration status
 // Returns true if update was successful, false if user not found
 pub fn update_location_entry_addr(username: &str, addr: SocketAddr) -> bool {
-    let mut entries = LOCATION_ENTRIES.lock().expect("Failed to lock location entries for update");
+    let mut entries = match LOCATION_ENTRIES.lock() {
+        Ok(guard) => guard,
+        Err(poisoned) => {
+            eprintln!(
+                "LOCATION_ENTRIES mutex poisoned while updating; continuing with existing data."
+            );
+            poisoned.into_inner()
+        }
+    };
     if let Some(entry) = entries.iter_mut().find(|entry| entry.username == username) {
         entry.current_addr = Some(addr);
         // Update ip_str and port as well, based on the received addr for consistency?
@@ -178,8 +162,15 @@ pub fn update_location_entry_addr(username: &str, addr: SocketAddr) -> bool {
 
 // Helper function to get a registered user's current address
 pub fn get_registered_addr(username: &str) -> Option<SocketAddr> {
-     let entries = LOCATION_ENTRIES.lock().expect("Failed to lock location entries for get addr");
-     entries.iter()
-            .find(|entry| entry.username == username && entry.registered)
-            .and_then(|entry| entry.current_addr) // Return the Option<SocketAddr>
+    let entries = match LOCATION_ENTRIES.lock() {
+        Ok(guard) => guard,
+        Err(poisoned) => {
+            eprintln!("LOCATION_ENTRIES mutex poisoned while reading; returning last known state.");
+            poisoned.into_inner()
+        }
+    };
+    entries
+        .iter()
+        .find(|entry| entry.username == username && entry.registered)
+        .and_then(|entry| entry.current_addr) // Return the Option<SocketAddr>
 }

@@ -1,17 +1,19 @@
-use std::net::{UdpSocket, SocketAddr, IpAddr, Ipv4Addr};
+#![deny(warnings)]
+
+use std::io;
+use std::net::{IpAddr, Ipv4Addr, SocketAddr, UdpSocket};
 use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
-use std::io;
 
 // Import definitions and modules
-mod sip_defs;
 mod call_map;
-mod worker;
 mod network_utils;
-mod parsing; // If created separately
+mod parsing;
+mod sip_defs;
+mod worker; // If created separately
 
-use sip_defs::*;
 use sip_defs::CallMap;
+use sip_defs::*;
 use worker::process_sip_messages;
 
 fn main() -> io::Result<()> {
@@ -68,25 +70,28 @@ fn main() -> io::Result<()> {
                     // Using try_send for bounded channel to avoid blocking main thread
                     match worker_senders[next_worker_index].try_send(message) {
                         Ok(_) => {
-                             //println!("Message from {} enqueued to worker {}.", client_addr, next_worker_index);
+                            //println!("Message from {} enqueued to worker {}.", client_addr, next_worker_index);
                         }
                         Err(mpsc::TrySendError::Full(msg)) => {
                             eprintln!(
                                 "Worker {} queue full. Dropping message from {}.",
                                 next_worker_index, msg.client_addr
                             );
-                             // TODO: Maybe send 503 Service Unavailable back?
+                            // TODO: Maybe send 503 Service Unavailable back?
                         }
-                         Err(mpsc::TrySendError::Disconnected(_)) => {
-                             eprintln!("Worker {} channel disconnected. Stopping?", next_worker_index);
-                             // Handle error, maybe respawn worker or stop server
-                             break; // Example: Stop server if worker dies
-                         }
+                        Err(mpsc::TrySendError::Disconnected(_)) => {
+                            eprintln!(
+                                "Worker {} channel disconnected. Stopping?",
+                                next_worker_index
+                            );
+                            // Handle error, maybe respawn worker or stop server
+                            break; // Example: Stop server if worker dies
+                        }
                     }
 
                     next_worker_index = (next_worker_index + 1) % MAX_THREADS;
                 } else if bytes_received > BUFFER_SIZE {
-                     eprintln!("Received oversized message from {}. Ignored.", client_addr);
+                    eprintln!("Received oversized message from {}. Ignored.", client_addr);
                 }
             }
             Err(ref e) if e.kind() == io::ErrorKind::WouldBlock => {
@@ -98,7 +103,7 @@ fn main() -> io::Result<()> {
                 eprintln!("Error receiving data: {}", e);
                 // Consider stopping or handling specific errors
                 // break; // Example: Stop on other errors
-                 thread::sleep(std::time::Duration::from_millis(100)); // Avoid busy-looping on persistent errors
+                thread::sleep(std::time::Duration::from_millis(100)); // Avoid busy-looping on persistent errors
             }
         }
         // Add a condition to break the loop for graceful shutdown if needed
@@ -113,5 +118,5 @@ fn main() -> io::Result<()> {
     // }
     // println!("All worker threads joined.");
 
-     Ok(()) // Currently unreachable
+    Ok(()) // Currently unreachable
 }

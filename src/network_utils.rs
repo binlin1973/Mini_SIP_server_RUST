@@ -1,4 +1,3 @@
-
 use std::net::UdpSocket;
 use std::sync::Arc;
 
@@ -17,14 +16,18 @@ pub fn send_sip_message(
             //     "\n================ SENT to {} ================\n{}\n================================================",
             //     destination, msg_str
             // );
-             println!("Tx SIP message ({} bytes) to {}", bytes_sent, destination);
-             if let Ok(msg_str) = String::from_utf8(message_buffer.to_vec()) {
-                if msg_str.len() < 300 { // Print short messages
+            println!("Tx SIP message ({} bytes) to {}", bytes_sent, destination);
+            if let Ok(msg_str) = String::from_utf8(message_buffer.to_vec()) {
+                if msg_str.len() < 300 {
+                    // Print short messages
                     println!("   Content: {}", msg_str.lines().next().unwrap_or(""));
                 } else {
-                     println!("   Content: {} ... (truncated)", msg_str[..100].lines().next().unwrap_or(""));
+                    println!(
+                        "   Content: {} ... (truncated)",
+                        msg_str[..100].lines().next().unwrap_or("")
+                    );
                 }
-             }
+            }
         }
         Err(e) => {
             eprintln!("Failed to send message to {}: {}", destination, e);
