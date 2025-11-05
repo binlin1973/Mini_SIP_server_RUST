@@ -70,13 +70,19 @@ impl CallMap {
     // Typically called when a call ends or needs cleanup.
     pub fn release_call(&mut self, index: usize) {
         if let Some(slot) = self.calls.get_mut(index) {
-            let was_active = slot.is_active;
+            // 关键修复：
+            // 当业务层已先把 is_active 置为 false 时，这里原来不会递减 size。
+            // 现在：如果槽位上曾经承载过一次有效通话（仍保留任一 Call-ID），也递减一次。
+            let had_effective_call =
+                slot.is_active || !slot.a_leg_uuid.is_empty() || !slot.b_leg_uuid.is_empty();
+
             *slot = Call {
                 index,
                 ..Call::default()
             };
-            if was_active {
-                self.size = self.size.saturating_sub(1);
+
+            if had_effective_call && self.size > 0 {
+                self.size -= 1;
             }
         }
     }

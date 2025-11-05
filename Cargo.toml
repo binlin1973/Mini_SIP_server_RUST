@@ -1,9 +1,29 @@
+# Cargo.toml
+
 [package]
 name = "sip_server_rust"
 version = "0.1.0"
 edition = "2021"
 
+# 可选：如需在 crates.io/CI 中使用类别/关键词/仓库信息，可在此补充
+# description = "SIP server in Rust focusing on call setup/teardown flows"
+# license = "MIT"
+# repository = "https://github.com/binlin1973/Mini_SIP_server_RUST"
+
+[lib]
+name = "sip_server_rust"
+path = "src/lib.rs"
+
+[[bin]]
+name = "sip_server_rust"
+path = "src/main.rs"
+
 [dependencies]
 rand = "0.8"
-lazy_static = "1.4" # For the static location_entries
-nix = "0.27" # For more detailed socket errors if needed (like EWOULDBLOCK) - optional
+lazy_static = "1.4"      # For the static location_entries
+nix = "0.27"             # Optional: more detailed socket errors (e.g., EWOULDBLOCK)
+
+# 如需给测试单独加依赖，在此处添加：
+# [dev-dependencies]
+# anyhow = "1"
+# thiserror = "1"

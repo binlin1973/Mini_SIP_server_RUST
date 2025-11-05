@@ -1,20 +1,12 @@
 #![deny(warnings)]
 
+use sip_server_rust::sip_defs::CallMap;
+use sip_server_rust::sip_defs::*;
+use sip_server_rust::worker::process_sip_messages;
 use std::io;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, UdpSocket};
 use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
-
-// Import definitions and modules
-mod call_map;
-mod network_utils;
-mod parsing;
-mod sip_defs;
-mod worker; // If created separately
-
-use sip_defs::CallMap;
-use sip_defs::*;
-use worker::process_sip_messages;
 
 fn main() -> io::Result<()> {
     println!("Starting SIP server on port {}...", SIP_PORT);
