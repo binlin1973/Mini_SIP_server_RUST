@@ -5,70 +5,42 @@ on:
     branches: [ main ]
   pull_request:
 
-concurrency:
-  group: rust-ci-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
-  build-and-test:
-    name: Build & Test (gnu)
+  build-test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [gnu, musl]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Rust (stable)
+      - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Cache cargo registry + target
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: v1-rust-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            v1-rust-${{ runner.os }}-
+      - name: Install musl toolchain (only for musl)
+        if: matrix.target == 'musl'
+        run: |
+          rustup target add x86_64-unknown-linux-musl
+          sudo apt-get update
+          sudo apt-get install -y musl-tools
 
-      - name: Build (debug)
-        run: cargo build --verbose
+      - name: Build
+        run: |
+          if [ "${{ matrix.target }}" = "musl" ]; then
+            cargo build --release --target x86_64-unknown-linux-musl
+            echo "BIN=target/x86_64-unknown-linux-musl/release/sip_server_rust" >> $GITHUB_ENV
+          else
+            cargo build --release
+            echo "BIN=target/release/sip_server_rust" >> $GITHUB_ENV
+          fi
 
-      - name: Run tests
-        run: cargo test --all --verbose
+      - name: Test
+        run: cargo test --all --quiet
 
-  build-musl:
-    name: Build (musl release)
-    runs-on: ubuntu-latest
-    needs: build-and-test
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Rust (stable + musl target)
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: x86_64-unknown-linux-musl
-
-      - name: Install musl tools
-        run: sudo apt-get update && sudo apt-get install -y musl-tools
-
-      - name: Cache cargo registry + musl target
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            target
-          key: v1-rust-musl-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            v1-rust-musl-${{ runner.os }}-
-
-      - name: Build (release, musl)
-        run: cargo build --release --target x86_64-unknown-linux-musl --verbose
-
-      - name: Upload musl binary (artifact)
+      - name: Upload binary
         uses: actions/upload-artifact@v4
         with:
-          name: sip_server_rust-musl
-          path: target/x86_64-unknown-linux-musl/release/sip_server_rust
+          name: sip_server_rust-${{ matrix.target }}
+          path: ${{ env.BIN }}
+          if-no-files-found: warn
