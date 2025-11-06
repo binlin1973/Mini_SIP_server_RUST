@@ -41,32 +41,24 @@ By default, the server listens on UDP port 5060.
 Any standard SIP softphone can connect to this server.
 
 ### Setting	Example	Description
+| Setting                | Example              | Description                 |
+| ---------------------- | -------------------- | --------------------------- |
+| **SIP Server / Proxy** | `192.168.32.131`    | Replace with your server IP |
+| **Port**               | `5060`               | Default UDP port            |
+| **Username**           | `1001` – `1006`      | Any user ID in this range   |
+| **Password**           | any non-empty string | Password is not validated   |
+| **Transport**          | `UDP`                | Required                    |
 
-SIP Server / Proxy	      192.168.32.131	       Replace with your server IP
-
-Port	                  5060	                   Default UDP port
-
-Username	              1001 – 1006	           Any user ID in this range
-
-Password	              any non-empty string	   Password is not validated
-
-Transport	              UDP	                   Required
 
 ### Example (MicroSIP)
-
-Field	                  Value
-
-Account name	          1001
-
-SIP server	              192.168.32.131
-
-User	                  1001
-
-Domain	                  192.168.32.131
-
-Password	              1234
-
-Transport	              UDP
+| Field        | Value           |
+| ------------ | --------------- |
+| Account name | 1001            |
+| SIP server   | 192.168.32.131 |
+| User         | 1001            |
+| Domain       | 192.168.32.131 |
+| Password     | 1234            |
+| Transport    | UDP             |
 
 ##  📞 Making a Call
 
