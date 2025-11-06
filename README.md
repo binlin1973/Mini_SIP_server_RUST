@@ -10,7 +10,7 @@ It focuses purely on SIP **signaling and call control**, not RTP media forwardin
 
 ## 🧩 Overview
 
-`Mini_SIP_server` is designed for learning, testing, and integration purposes.  
+`Mini_SIP_server (Rust)` is designed for learning, testing, and integration purposes.  
 It lets any standard SIP softphone (e.g., **Linphone**, **MicroSIP**, **Zoiper**) register and make peer-to-peer calls.
 
 The server runs as a single lightweight binary and stores user registration information in memory.
