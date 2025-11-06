@@ -1,3 +1,5 @@
+[![CI](https://github.com///actions/workflows/ci.yml/badge.svg)](https://github.com///actions/workflows/ci.yml)
+
 # Mini_SIP_server (Rust)
 
 [![CI](https://github.com/binlin1973/Mini_SIP_server_RUST/actions/workflows/ci.yml/badge.svg)](https://github.com/binlin1973/Mini_SIP_server_RUST/actions/workflows/ci.yml)
