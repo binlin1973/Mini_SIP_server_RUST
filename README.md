@@ -4,7 +4,7 @@ A lightweight SIP server written in RUST, implementing the full SIP call flow—
 ### NOTE 1: Server IP
 Before building, open `sip_defs.rs` and set `SIP_SERVER_IP_ADDRESS` to your server’s actual runtime IP:
 
-pub const SIP_SERVER_IP_ADDRESS: &str = "192.168.184.128"; // Example—change as needed
+pub const SIP_SERVER_IP_ADDRESS: &str = "192.168.32.131"; // Example—change as needed
 
 
 ### NOTE 2: SIP Numbers Available for Registration
