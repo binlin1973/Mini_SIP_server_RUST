@@ -108,8 +108,8 @@ use lazy_static::lazy_static;
 // IPs/Ports in the static definition are defaults; `current_addr` is updated by REGISTER.
 lazy_static! {
     pub static ref LOCATION_ENTRIES: Mutex<Vec<LocationEntry>> = Mutex::new(vec![
-        LocationEntry { username: "1001".to_string(), ip_str: "192.168.32.1".to_string(), port: 5060, registered: false, current_addr: None },
-        LocationEntry { username: "1002".to_string(), ip_str: "192.168.32.1".to_string(), port: 5070, registered: false, current_addr: None },
+        LocationEntry { username: "1001".to_string(), ip_str: "192.168.32.10".to_string(), port: 5060, registered: false, current_addr: None },
+        LocationEntry { username: "1002".to_string(), ip_str: "192.168.32.10".to_string(), port: 5070, registered: false, current_addr: None },
         LocationEntry { username: "1003".to_string(), ip_str: "192.168.1.103".to_string(), port: 5060, registered: false, current_addr: None },
         LocationEntry { username: "1004".to_string(), ip_str: "192.168.1.104".to_string(), port: 5060, registered: false, current_addr: None },
         LocationEntry { username: "1005".to_string(), ip_str: "192.168.184.1".to_string(), port: 5060, registered: false, current_addr: None },
