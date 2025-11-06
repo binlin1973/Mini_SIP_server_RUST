@@ -27,10 +27,12 @@ pub const SIP_SERVER_IP_ADDRESS: &str = "192.168.32.131"; // Example — change 
 ### 2. Build
 
 cargo clean
+
 cargo build --release --target x86_64-unknown-linux-musl
 
 ### 3. Run
 ./target/x86_64-unknown-linux-musl/release/sip_server_rust
+
 By default, the server listens on UDP port 5060.
 
 
