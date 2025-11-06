@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        target: [gnu, musl]
+        target: [gnu, musl] # Support both gnu and musl targets
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -48,6 +48,6 @@ jobs:
         with:
           name: sip_server_rust-${{ matrix.target }}
           path: |
-            target/release/*
-            target/x86_64-unknown-linux-musl/release/*
+            target/release/sip_server_rust
+            target/x86_64-unknown-linux-musl/release/sip_server_rust
           if-no-files-found: warn
