@@ -40,7 +40,7 @@ By default, the server listens on UDP port 5060.
 ## ⚙️ Softphone Configuration
 Any standard SIP softphone can connect to this server.
 
-Setting	Example	Description
+### Setting	Example	Description
 
 SIP Server / Proxy	      192.168.32.131	       Replace with your server IP
 
@@ -52,7 +52,7 @@ Password	              any non-empty string	   Password is not validated
 
 Transport	              UDP	                   Required
 
-Example (MicroSIP)
+### Example (MicroSIP)
 
 Field	                  Value
 
